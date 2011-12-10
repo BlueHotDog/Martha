@@ -1,0 +1,18 @@
+{
+	"name": "Martha",
+	"description": "Super Scraper",
+	"version": "0.0.1",
+	"homepage": "http://github.com/BlueHotDog/Martha",
+	"author": "Danni Friedland, Itay Adler",
+	"bugs": {
+		"url": "http://github.com/BlueHotDog/Martha/issues"
+	},
+	"directories": {
+		"lib": "./lib"
+	},
+	"main": "./lib/martha.js",
+	"dependencies": {
+		"mongoose": "",
+		"mongodb":""
+	}
+}
