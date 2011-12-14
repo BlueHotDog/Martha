@@ -3,28 +3,25 @@ fs = require('fs')
 _ = require('underscore')
 
 class Martha
-  constructor: () ->
+  constructor: (@scarper_dir = 'scrapers/') ->
     @scrapers = {}
-    @_initScrapers()
-    @initDB()
-
-  fetch: () ->
-		for scraper in @scrapers do
-      scarper.on('new_product', (market_name, product) => @_insertProduct(market_name, product))
-			
-  _insertProduct:(market_name, product) ->
-    @model.findOne({name: market_name}, (err, market) =>
-      market.products.push(product)
-      market.save()
+    #@_initDB()
+  
+  fetch: () ->		
+    _.each(@scrapers, (scarper) => 
+      scarper.on('new_product', (market_name, product) => @_insertProduct(market_name, product)
+      )
     )
-
+  	
+  _insertProduct:(market_name, product) ->
+    @model.findOne({name: market_name}, (err, market) => market.products.push(product) market.save() )
+  
   _scraperDone: (market_name) ->
     @scrapers[market_name].done = true
     if _(@scrapers).all((scraper) -> scraper.done)
       console.log('DONE')
-
-
-  initDB: () ->
+  
+  _initDB: () ->
 	  #todo: get the connection from config
     mongoose.connect("mongodb://root:hello@ds029187.mongolab.com:29187/martha")
     product = new mongoose.Schema(
@@ -33,25 +30,30 @@ class Martha
       created_at: Date
       price: Number
     )
-
+  
     market = new mongoose.Schema(
       name: String
       products: [product]
     )
+  
+    @model = mongoose.model('market', market)    
+  
+  loadScrapers: () ->
+    files = @loadScarapers()
+    @_initScrapers(files)
 
-    @model = mongoose.model('market', market)
-
-  _initScrapers: () ->
-    dir = 'scrapers/'
+  loadScarpersFromDir: () ->
     #todo: handle non coffee script files?
-    files = fs.readdirSync(dir)
-    @_initScraper(dir+file) for file in files
+    fs.readdirSync(@scarper_dir)
+
+  _initScrapers: (files) ->
+    @_initScraper(@scarper_dir+file) for file in files
 
   _initScraper: (location) ->
     scraper = require(location)
     @scrapers[scraper.name] = scraper
 
-    @initMarket(scraper.name)
+    @_initMarket(scraper.name)
 
     scraper.done = false
     scraper.on('new_product', (market_name, product) => @_insertProduct(market_name, product))
@@ -63,3 +65,5 @@ class Martha
         m = new @model({name: name})
         m.save()
     )
+
+exports.martha = Martha

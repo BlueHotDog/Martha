@@ -13,6 +13,8 @@
 	"main": "./lib/martha.js",
 	"dependencies": {
 		"mongoose": "",
-		"mongodb":""
+		"mongodb":"",
+		"underscore":"",
+		"vows":""
 	}
 }
